@@ -1,0 +1,26 @@
+language: python
+
+python:
+  - '3.9'
+
+services:
+  - docker
+
+branches:
+  only:
+  - main
+
+jobs:
+  include:
+    - stage: reproduce_issue
+      env: K8S=v1.25.8
+      before_script:
+        - echo "Setting up test environment..."
+        - curl -LO https://dl.k8s.io/release/$K8S/bin/linux/amd64/kubectl
+        - chmod +x kubectl
+        - sudo mv kubectl /usr/local/bin/
+        - kubectl version --client
+      script:
+        - echo "Running customer's smoke_test.sh script..."
+        - chmod +x smoke_test.sh
+        - ./smoke_test.sh || travis_terminate 1;
